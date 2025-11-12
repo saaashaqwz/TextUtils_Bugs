@@ -4,9 +4,6 @@ namespace TextUtils_Bugs;
 
 public class TextProcessor
 {
-    private int maxLineLength = 80;
-    private int minWordLength = 3;
-        
     public void ProcessText(string inputFile, string outputFile, int operation)
     {
         string text = File.ReadAllText(inputFile);
