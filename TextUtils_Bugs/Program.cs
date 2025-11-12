@@ -159,22 +159,20 @@ class Program
         
         TextProcessor processor = new TextProcessor();
         
-        // Тестовые данные
         string sampleText = "Это   пример   текста   с   лишними   пробелами";
         string textWithPunctuation = "Привет, мир! Это тест.";
         string simpleText = "Простой текст без лишних пробелов";
         
-        // Демонстрация работы с багами
         Console.WriteLine($"Исходный текст: '{sampleText}'");
         
         int wordCount = processor.CountWords(sampleText);
-        Console.WriteLine($"Количество слов: {wordCount} (должно быть 6)");
+        Console.WriteLine($"Количество слов: {wordCount}");
         
         string longestWord = processor.FindLongestWord(textWithPunctuation);
-        Console.WriteLine($"Самое длинное слово: '{longestWord}' (должно быть 'Привет' без запятой)");
+        Console.WriteLine($"Самое длинное слово: '{longestWord}'");
         
         var charFrequency = processor.GetCharFrequency(simpleText);
-        Console.WriteLine("Частота символов (включая пробелы):");
+        Console.WriteLine("Частота символов:");
         foreach (var kvp in charFrequency.Take(5))
         {
             Console.WriteLine($"  '{kvp.Key}': {kvp.Value}");
@@ -183,7 +181,6 @@ class Program
         string cleanedText = processor.RemoveExtraSpaces(sampleText);
         Console.WriteLine($"Без лишних пробелов: '{cleanedText}'");
         
-        // Попытка обработать несуществующий файл (вызовет исключение)
         try
         {
             processor.ProcessText("nonexistent.txt", "output.txt", 1);
