@@ -11,14 +11,14 @@ public class TextProcessor
         _analyzer = analyzer;
         _formatter = formatter;
     }
-    public TextResult Process(string text)
+    public TextResult ProcessText(string text)
     {
         return new TextResult
         {
             WordCount = _analyzer.CountWords(text),
             LongestWord = _analyzer.FindLongestWord(text),
-            Frequency = _analyzer.GetCharacterFrequency(text),
-            Cleaned = _formatter.RemoveExtraSpaces(text)
+            CharacterFrequency = _analyzer.GetCharacterFrequency(text),
+            CleanedText = _formatter.RemoveExtraSpaces(text)
         };
     }
-}   
+} 

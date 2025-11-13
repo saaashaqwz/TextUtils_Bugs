@@ -6,12 +6,32 @@ public class TextFormatter : ITextFormatter
 {
     public string RemoveExtraSpaces(string text)
     {
-        if (string.IsNullOrWhiteSpace(text)) return string.Empty;
-        return string.Join(' ', text.Split(default(string[]), StringSplitOptions.RemoveEmptyEntries));
+        if (string.IsNullOrEmpty(text))
+            return string.Empty;
+        StringBuilder result = new StringBuilder();
+        bool previousWasSpace = false;
+        foreach (char character in text)
+        {
+            if (character == ' ')
+            {
+                if (!previousWasSpace)
+                {
+                    result.Append(character);
+                    previousWasSpace = true;
+                }
+            }
+            else
+            {
+                result.Append(character);
+                previousWasSpace = false;
+            }
+        }
+        return result.ToString().Trim();
     }
-
     public string ChangeCase(string text, TextCase textCase)
     {
+        if (string.IsNullOrEmpty(text))
+            return string.Empty;
         return textCase switch
         {
             TextCase.Upper => text.ToUpper(),
@@ -19,51 +39,73 @@ public class TextFormatter : ITextFormatter
             _ => text
         };
     }
-
     public string JustifyText(string text, int lineWidth = 80)
     {
-        if (string.IsNullOrWhiteSpace(text)) return string.Empty;
-        var words = text.Split(' ', StringSplitOptions.RemoveEmptyEntries);
+        if (string.IsNullOrEmpty(text))
+            return string.Empty;
+        var words = text.Split(new[] { ' ' },
+        StringSplitOptions.RemoveEmptyEntries);
         var lines = BuildLines(words, lineWidth);
-        return string.Join("\n", lines.Select(JustifyLine));
+        return JustifyLines(lines, lineWidth);
     }
-
-    private List<List<string>> BuildLines(string[] words, int width)
+    
+    private List<List<string>> BuildLines(string[] words, int lineWidth)
     {
         var lines = new List<List<string>>();
-        var current = new List<string>();
-        int length = 0;
-
+        var currentLine = new List<string>();
+        int currentLength = 0;
         foreach (var word in words)
-        {
-            if (length + word.Length + current.Count > width)
+        { 
+            if (currentLength + word.Length + currentLine.Count <= lineWidth)
             {
-                lines.Add(current);
-                current = new List<string>();
-                length = 0;
+                currentLine.Add(word);
+                currentLength += word.Length;
             }
-            current.Add(word);
-            length += word.Length;
+            else
+            {
+                if (currentLine.Count > 0)
+                { 
+                    lines.Add(currentLine);
+                }
+                currentLine = new List<string> { word };
+                currentLength = word.Length;
+            }
         }
-        if (current.Count > 0) lines.Add(current);
+        if (currentLine.Count > 0)
+        {
+            lines.Add(currentLine);
+        }
         return lines;
     }
-
-    private string JustifyLine(List<string> words)
+    private string JustifyLines(List<List<string>> lines, int lineWidth)
     {
-        if (words.Count == 1) return words[0];
-        int totalLength = words.Sum(w => w.Length);
-        int spaces = 80 - totalLength;
-        int gaps = words.Count - 1;
-        int baseSpaces = spaces / gaps;
-        int extra = spaces % gaps;
-
-        var result = new StringBuilder();
-        for (int i = 0; i < words.Count; i++)
+        var result = new List<string>();
+        foreach (var lineWords in lines)
         {
-            result.Append(words[i]);
-            if (i < gaps) result.Append(' ', baseSpaces + (i < extra ? 1 : 0));
+            if (lineWords.Count == 1)
+            { 
+                result.Add(lineWords[0]);
+            }
+            else
+            {
+                result.Add(JustifyLine(lineWords, lineWidth));
+            }
         }
-        return result.ToString();
+        return string.Join("\n", result);
+    }
+    private string JustifyLine(List<string> words, int lineWidth)
+    {
+        int totalSpaces = lineWidth - words.Sum(word => word.Length);
+        int spaceBetween = totalSpaces / (words.Count - 1);
+        int extraSpaces = totalSpaces % (words.Count - 1);
+        StringBuilder alignedLine = new StringBuilder(words[0]);
+        
+        for (int i = 1; i < words.Count; i++)
+        {
+            int spaces = spaceBetween + (i <= extraSpaces ? 1 : 0);
+            alignedLine.Append(new string(' ', spaces));
+            alignedLine.Append(words[i]);
+        }
+        return alignedLine.ToString();
     }
 }

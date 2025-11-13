@@ -6,41 +6,35 @@ class Program
 {
     static void Main(string[] args)
     {
-        Console.WriteLine("=== Система обработки текста ===");
-        
-        TextProcessor processor = new TextProcessor();
-        
-        string sampleText = "Это   пример   текста   с   лишними   пробелами";
-        string textWithPunctuation = "Привет, мир! Это тест.";
-        string simpleText = "Простой текст без лишних пробелов";
-        
-        Console.WriteLine($"Исходный текст: '{sampleText}'");
-        
-        int wordCount = processor.CountWords(sampleText);
-        Console.WriteLine($"Количество слов: {wordCount}");
-        
-        string longestWord = processor.FindLongestWord(textWithPunctuation);
-        Console.WriteLine($"Самое длинное слово: '{longestWord}'");
-        
-        var charFrequency = processor.GetCharFrequency(simpleText);
+        var analyzer = new TextAnalyzer();
+        var formatter = new TextFormatter();
+        var processor = new TextProcessor(analyzer, formatter);
+        string sampleText = "Это пример текста с лишними пробелами и разными словами разной длины";
+        var result = processor.ProcessText(sampleText);
+       
+        Console.WriteLine($"Текст: {sampleText}");
+        Console.WriteLine($"Слов: {result.WordCount}");
+        Console.WriteLine($"Самое длинное слово: {result.LongestWord}");
         Console.WriteLine("Частота символов:");
-        foreach (var kvp in charFrequency.Take(5))
+       
+        foreach (var kvp in result.CharacterFrequency)
         {
-            Console.WriteLine($"  '{kvp.Key}': {kvp.Value}");
+            if (kvp.Value > 1)
+            {
+                Console.WriteLine($" '{kvp.Key}': {kvp.Value}");
+            }
         }
-        
-        string cleanedText = processor.RemoveExtraSpaces(sampleText);
-        Console.WriteLine($"Без лишних пробелов: '{cleanedText}'");
-        
-        try
-        {
-            processor.ProcessText("nonexistent.txt", "output.txt", 1);
-        }
-        catch (Exception ex)
-        {
-            Console.WriteLine($"Ошибка при обработке файла: {ex.Message}");
-        }
-        
+        Console.WriteLine($"Очищенный текст: {result.CleanedText}");
+       
+        string upperText = formatter.ChangeCase(sampleText, TextCase.Upper);
+        Console.WriteLine($"В верхнем регистре: {upperText}");
+       
+        string lorem = "Это длинный текст который нужно выровнять по ширине чтобы он выглядел красиво и аккуратно на экране";
+    
+        string aligned = formatter.JustifyText(lorem, 50);
+        Console.WriteLine("\nВыровненный текст:");
+      
+        Console.WriteLine(aligned);
         Console.ReadLine();
     }
 }
